@@ -110,39 +110,71 @@
            IF ANUM = NUMA IF KODE = "C" GO TO CHECKING ELSE GO TO               
            SAVING ELSE GO TO BREAK-THELOOP.                                     
        CHECKING.                                                                
-           ADD DEP TO TOTCD. ADD WITHH TO TOTCW. ADD DEP TO C-TOTCD. ADD        
-           WITHH TO C-TOTCW. ADD 1 TO CDD. ADD 1 TO CWW. GO TO PRINTIT.         
-       CHECKIT. IF WITHH GREATER THAN BALANCE THEN MOVE "NOT ENOUGH             
-      -    "FUNDS IN ACCOUNT" TO MESS-LINE-ITEM. GO TO MESS-PRINT.              
+           ADD DEP TO TOTCD. 
+           ADD WITHH TO TOTCW. 
+           ADD DEP TO C-TOTCD. 
+           ADD WITHH TO C-TOTCW.
+           ADD 1 TO CDD.
+           ADD 1 TO CWW.
+           GO TO PRINTIT.
+       CHECKIT. 
+           IF WITHH GREATER THAN BALANCE THEN 
+           MOVE "NOT ENOUGH FUNDS IN ACCOUNT" TO MESS-LINE-ITEM. 
+           GO TO MESS-PRINT.
        SAVING.                                                                  
-           ADD DEP TO TOTSD. ADD WITHH TO TOTSW. ADD DEP TO C-TOTSD.            
-           ADD WITHH TO C-TOTSW. ADD 1 TO SDD. ADD 1 TO SWW. GO TO              
+           ADD DEP TO TOTSD. 
+           ADD WITHH TO TOTSW. 
+           ADD DEP TO C-TOTSD.            
+           ADD WITHH TO C-TOTSW. 
+           ADD 1 TO SDD. 
+           ADD 1 TO SWW. GO TO              
            STARTHERE.                                                             
       * CHECK IF THE BALANCE IS LESS THAN 500                                   
-       CHECK-AGAIN. IF BALANCE LESS THAN 500 MOVE 10.00 TO FIN-CHG              
-           SUBTRACT FIN-CHG FROM BALANCE.                                       
+       CHECK-AGAIN. 
+           IF BALANCE LESS THAN 500 
+               MOVE 10.00 TO FIN-CHG              
+               SUBTRACT FIN-CHG FROM BALANCE.                                       
        OUTTHERE.                                                                
-           MOVE ANUM TO NUMA. MOVE ZEROS TO FIRST-RECORD. GO TO PROCESS.        
+           MOVE ANUM TO NUMA.
+           MOVE ZEROS TO FIRST-RECORD.
+           GO TO PROCESS.        
        SOMEWHERE.                                                               
            GO TO PROCESS.                                                       
        BREAK-THELOOP.                                                           
-           GO TO PROCESS. MOVE C-TOTSD TO TOTSDO. MOVE C-TOTSW TO
-           TOTSWO. MOVE C-TOTCD TO TOTCDO. MOVE C-TOTCW TO TOTSWO. MOVE 
-           TOTAL1 TO OUT-PUT. WRITE OUT-PUT AFTER ADVANCING 1 LINES. 
-           MOVE ANUM TO NUMA. MOVE 1 TO FIRST-RECORD. GO TO PRINTIT.                             
+           GO TO PROCESS.
+           MOVE C-TOTSD TO TOTSDO. 
+           MOVE C-TOTSW TO TOTSWO. 
+           MOVE C-TOTCD TO TOTCDO. 
+           MOVE C-TOTCW TO TOTSWO. 
+           MOVE TOTAL1 TO OUT-PUT. 
+           WRITE OUT-PUT AFTER ADVANCING 1 LINES.
+           MOVE ANUM TO NUMA. 
+           MOVE 1 TO FIRST-RECORD. 
+           GO TO PRINTIT.                             
        PRINTIT.                                                                 
-           MOVE CUSNAME TO CNAME. MOVE ANUM TO ACTNUM. MOVE DEP TO DEPS.        
-           MOVE WITHH TO WITHR. MOVE OUTLINE TO OUT-PUT. WRITE OUT-PUT          
-           AFTER ADVANCING 1 LINES. GO TO STARTHERE.                            
+           MOVE CUSNAME TO CNAME. 
+           MOVE ANUM TO ACTNUM. 
+           MOVE DEP TO DEPS.        
+           MOVE WITHH TO WITHR. 
+           MOVE OUTLINE TO OUT-PUT. 
+           WRITE OUT-PUT          
+           AFTER ADVANCING 1 LINES. 
+           GO TO STARTHERE.                            
        GOTHERE.                                                                 
-           DIVIDE TOTSD BY SDD GIVING A-SD. DIVIDE TOTCD BY CDD GIVING          
-           A-CD. DIVIDE TOTSW BY SWW GIVING A-SW. DIVIDE TOTCW BY CWW           
-           GIVING A-CW. MOVE A-SD TO SD-A. MOVE A-CD TO CD-A. MOVE              
-           A-SW TO SW-A. MOVE A-CW TO SW-A.                                     
-                        MOVE AVG1 TO OUT-PUT. WRITE OUT-PUT AFTER ADVANC        
-      -    ING 1 LINES. MOVE 1 TO THESWITCH. GO TO ENDIT.
+           DIVIDE TOTSD BY SDD GIVING A-SD. 
+           DIVIDE TOTCD BY CDD GIVING A-CD.
+           DIVIDE TOTSW BY SWW GIVING A-SW. 
+           DIVIDE TOTCW BY CWW GIVING A-CW. 
+           MOVE A-SD TO SD-A. 
+           MOVE A-CD TO CD-A. 
+           MOVE A-SW TO SW-A. 
+           MOVE A-CW TO SW-A.
+           MOVE AVG1 TO OUT-PUT. 
+           WRITE OUT-PUT AFTER ADVANCING 1 LINES.
+           MOVE 1 TO THESWITCH. GO TO ENDIT.
        MESS-PRINT.                                                              
-           MOVE MESS-LINE TO OUT-PUT. WRITE OUT-PUT AFTER ADVANCING             
+           MOVE MESS-LINE TO OUT-PUT.
+           WRITE OUT-PUT AFTER ADVANCING             
            1 LINES.
            GO TO STARTHERE.
                                                                                 
