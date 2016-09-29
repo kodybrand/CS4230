@@ -47,6 +47,7 @@
        77  A-W          PIC S9(4)V99    VALUE 0.
        77  A-D          PIC S9(4)V99    VALUE 0.
        77  A-F          PIC S9(4)V99    VALUE 0.
+       77  T-FEE        PIC S9(4)V99    VALUE 0.
        77  H-B          PIC 9(7)V99     VALUE 0.
        77  H-B-N        PIC X(16).
        77  H-M          PIC 9(7)V99     VALUE 0.
@@ -54,6 +55,7 @@
        77  ACT-COUNT    PIC 9(3)        VALUE 0.
        77  ACT-TOTAL    PIC 9(7)V99     VALUE 0.
        77  ACT-AVG      PIC 9(7)V99     VALUE 0.
+       77  T-INT        PIC 9(7)V99     VALUE 0.
        01  WS-CURRENT-DATE-FIELDS.
              05  WS-CURRENT-DATE.
                  10  WS-CURRENT-YEAR    PIC  9(4).
@@ -111,7 +113,11 @@
            05  FILLER      PIC X(5).
            05  FILLER      PIC X(8)    VALUE "DEPOSITS".
            05  FILLER      PIC X(6).
-           05  FILLER      PIC X(14)   VALUE "ENDING BALANCE".
+           05  FILLER      PIC X(10)    VALUE "TOTAL FEES".
+           05  FILLER      PIC X(6).
+           05  FILLER      PIC X(14)    VALUE "EARNED INTREST".
+           05  FILLER      PIC X(2).
+           05  FILLER      PIC X(14)    VALUE "ENDING BALANCE".
        01  ACT-FOOTER-2.
            05  ACT-NAME    PIC X(16).
            05  FILLER      PIC X(7).
@@ -122,7 +128,11 @@
            05  ACT-W-TOT   PIC $,$$$,$$9.99.
            05  FILLER      PIC X(1).
            05  ACT-D-TOT   PIC $,$$$,$$9.99.
+           05  FILLER      PIC X(4).
+           05  ACT-F-TOT   PIC $,$$$,$$9.99.
            05  FILLER      PIC X(6).
+           05  ACT-I-TOT   PIC $,$$$,$$9.99.
+           05  FILLER      PIC X(4).
            05  ACT-E-TOT   PIC +$,$$$,$$9.99.
        01  END-PRINT-1.
            05  FILLER      PIC X(15)   VALUE "HIGHEST BALANCE".
@@ -156,6 +166,7 @@
            READ BANKIN AT END PERFORM CLOSEUP.
            IF ANUM = CUR-ACCT PERFORM SAME-ACCOUNT THRU E-SAME-ACCOUNT
            ELSE
+               PERFORM GET-INTREST THRU E-INTREST
                IF FIRST-RUN = 0
                    MOVE ACT-FOOTER-1 TO OUT-PUT
                    WRITE OUT-PUT AFTER ADVANCING 1 LINE
@@ -165,6 +176,7 @@
                    MOVE A-BALANCE TO ACT-E-TOT
                    MOVE A-D TO ACT-D-TOT
                    MOVE A-W TO ACT-W-TOT
+                   MOVE T-FEE TO ACT-F-TOT
                    MOVE ACT-FOOTER-2 TO OUT-PUT
                    WRITE OUT-PUT BEFORE ADVANCING 2 LINE.
            MOVE 0 TO FIRST-RUN
@@ -176,6 +188,8 @@
            MOVE 0 TO A-W.
            MOVE 0 TO A-F.
            MOVE 0 TO ACT-FEE.
+           MOVE 0 TO T-FEE.
+           MOVE 0 TO T-INT.
            MOVE ANUM TO CUR-ACCT.
            MOVE CUSNAME TO CUR-NAME.
            MOVE KODE TO CUR-TYPE.
@@ -223,11 +237,23 @@
        E-HIGH.
        EXIT.
        
+       GET-INTREST.
+           IF CUR-TYPE = "M" AND A-BALANCE IS GREATER 150
+               MULTIPLY A-BALANCE BY .0163 GIVING T-INT
+               ADD T-INT TO A-BALANCE
+               MOVE T-INT TO ACT-I-TOT
+           ELSE    
+               MOVE 0 TO T-INT
+               MOVE 0 TO ACT-I-TOT.
+       E-INTREST.
+       EXIT.
+       
        CHECK-FEE.
            IF A-BALANCE IS LESS THAN 150
                MOVE "MINIMUM CHARGE" TO ACT-ERROR
                MOVE 30 TO ACT-FEE
                ADD 30 TO A-F
+               ADD 30 TO T-FEE
                SUBTRACT 30 FROM A-BALANCE
            ELSE
                MOVE "" TO ACT-ERROR
@@ -244,6 +270,7 @@
            MOVE A-BALANCE TO ACT-E-TOT
            MOVE A-D TO ACT-D-TOT
            MOVE A-W TO ACT-W-TOT
+           MOVE T-FEE TO ACT-F-TOT
            MOVE ACT-FOOTER-2 TO OUT-PUT
            WRITE OUT-PUT BEFORE ADVANCING 2 LINE.
            PERFORM FINAL-PRINT
