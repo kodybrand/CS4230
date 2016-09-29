@@ -150,6 +150,27 @@
            05  HI-B-AMT    PIC $,$$$,$$9.99.
            05  FILLER      PIC X(10).
            05  HI-M-AMT    PIC $,$$$,$$9.99.
+       01  BG-BAL-DATA.
+           05  FILLER     PIC X(12) VALUE "C10030035293".
+           05  FILLER     PIC X(12) VALUE "C20150014000".
+           05  FILLER     PIC X(12) VALUE "C20990043286".
+           05  FILLER     PIC X(12) VALUE "C23020101415".
+           05  FILLER     PIC X(12) VALUE "M10030069245".
+           05  FILLER     PIC X(12) VALUE "M10960768840".
+           05  FILLER     PIC X(12) VALUE "M15080264533".
+           05  FILLER     PIC X(12) VALUE "M35100405087".
+           05  FILLER     PIC X(12) VALUE "M81522947865".
+           05  FILLER     PIC X(12) VALUE "S15091005699".
+           05  FILLER     PIC X(12) VALUE "S15100028580".
+           05  FILLER     PIC X(12) VALUE "S19000013183".
+           05  FILLER     PIC X(12) VALUE "S22190032162".
+           05  FILLER     PIC X(12) VALUE "S34440015301".
+           05  FILLER     PIC X(12) VALUE "S49020075165".
+           05  FILLER     PIC X(12) VALUE "S60690702424".
+       01  BG-BAL-TABLE REDEFINES BG-BAL-DATA.
+           05  BG-BAL OCCURS 16 TIMES INDEXED BY INX-A.
+              10  T-ACCT   PIC X(5).
+              10  T-BAL    PIC 9(5)V99.
        PROCEDURE DIVISION.                                                      
        MAIN.      
            OPEN INPUT BANKIN.
@@ -193,6 +214,7 @@
            MOVE ANUM TO CUR-ACCT.
            MOVE CUSNAME TO CUR-NAME.
            MOVE KODE TO CUR-TYPE.
+           PERFORM SEARCH-TABLE
            MOVE ACT-HEADER-1 TO OUT-PUT
            WRITE OUT-PUT AFTER ADVANCING 1 LINES.
            MOVE CUSNAME TO ACT-NAME OF ACT-HEADER-2
@@ -224,6 +246,13 @@
            PERFORM READ-RECORD.
        E-SAME-ACCOUNT.
        EXIT.
+       
+       SEARCH-TABLE.
+           SET INX-A TO 1
+               SEARCH BG-BAL OF BG-BAL-TABLE
+                   WHEN T-ACCT(INX-A) = CUR-ACCT
+                       MOVE T-BAL(INX-A) TO A-BALANCE
+               END-SEARCH.
        
        HIGH.
           ADD A-BALANCE TO ACT-TOTAL.
