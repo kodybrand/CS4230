@@ -1,9 +1,9 @@
 ***********************************************************
 * HOMEWORK #1 Part 2
+* KODY BRAND
 * This program takes in data from the BANKFILE.DAT and 
-* proceses the records. Depending on the bank account
-* it will debit or credit it. It will then produce a report
-* at BANKREPXXX.RPT. 
+* proceses the records. Depending on the account type it will
+* handle the record accordingly. This will write a detailed report.
 ***********************************************************
        IDENTIFICATION DIVISION.                                                 
        PROGRAM-ID. BANK.                                                        
@@ -171,8 +171,9 @@
            05  BG-BAL OCCURS 16 TIMES INDEXED BY INX-A.
               10  T-ACCT   PIC X(5).
               10  T-BAL    PIC 9(5)V99.
-       PROCEDURE DIVISION.                                                      
-       MAIN.      
+       PROCEDURE DIVISION.
+      * This will start the process. And write the headers.             
+       000-MAIN.      
            OPEN INPUT BANKIN.
            OPEN OUTPUT BANKOUT.
            MOVE FUNCTION CURRENT-DATE TO WS-CURRENT-DATE-FIELDS.
@@ -183,11 +184,14 @@
            WRITE OUT-PUT.
            MOVE HEADER-2 TO OUT-PUT.
            WRITE OUT-PUT AFTER ADVANCING 1 LINES.
-       READ-RECORD.
-           READ BANKIN AT END PERFORM CLOSEUP.
-           IF ANUM = CUR-ACCT PERFORM SAME-ACCOUNT THRU E-SAME-ACCOUNT
+      * Reads in the records and decides if the account is already in
+      * in the process.
+       100-READ-RECORD.
+           READ BANKIN AT END PERFORM 800-CLOSEUP.
+           IF ANUM = CUR-ACCT PERFORM 300-SAME-ACCOUNT
+           THRU E-300-SAME-ACCOUNT
            ELSE
-               PERFORM GET-INTREST THRU E-INTREST
+               PERFORM 600-GET-INTREST THRU E-INTREST
                IF FIRST-RUN = 0
                    MOVE ACT-FOOTER-1 TO OUT-PUT
                    WRITE OUT-PUT AFTER ADVANCING 1 LINE
@@ -201,9 +205,10 @@
                    MOVE ACT-FOOTER-2 TO OUT-PUT
                    WRITE OUT-PUT BEFORE ADVANCING 2 LINE.
            MOVE 0 TO FIRST-RUN
-           PERFORM HIGH THRU E-HIGH.
-           PERFORM NEW-ACCOUNT THRU E-NEW-ACCOUNT.
-       NEW-ACCOUNT.
+           PERFORM 500-HIGH THRU E-500-HIGH.
+           PERFORM 200-NEW-ACCOUNT THRU E-200-NEW-ACCOUNT.
+      * Handles the start of a new account.
+       200-NEW-ACCOUNT.
            MOVE 0 TO A-BALANCE.
            MOVE 0 TO A-D.
            MOVE 0 TO A-W.
@@ -214,7 +219,7 @@
            MOVE ANUM TO CUR-ACCT.
            MOVE CUSNAME TO CUR-NAME.
            MOVE KODE TO CUR-TYPE.
-           PERFORM SEARCH-TABLE
+           PERFORM 400-SEARCH-TABLE
            MOVE ACT-HEADER-1 TO OUT-PUT
            WRITE OUT-PUT AFTER ADVANCING 1 LINES.
            MOVE CUSNAME TO ACT-NAME OF ACT-HEADER-2
@@ -223,11 +228,11 @@
            MOVE A-BALANCE TO ACT-BEG OF ACT-FOOTER-2
            MOVE ACT-HEADER-2 TO OUT-PUT
            WRITE OUT-PUT AFTER ADVANCING 1 LINES.
-           PERFORM SAME-ACCOUNT THRU E-SAME-ACCOUNT.
-       E-NEW-ACCOUNT.
+           PERFORM 300-SAME-ACCOUNT THRU E-300-SAME-ACCOUNT.
+       E-200-NEW-ACCOUNT.
        EXIT.
-       
-       SAME-ACCOUNT.
+      * Handles when the account process has already be started.
+       300-SAME-ACCOUNT.
            IF DEP IS ZEROES MOVE ZEROES TO ACT-DEB
            ELSE 
                MOVE DEP TO ACT-DEB
@@ -238,23 +243,25 @@
            ELSE 
                MOVE WITHH TO ACT-WID
                SUBTRACT WITHH FROM A-BALANCE
-               PERFORM CHECK-FEE THRU E-FEE
+               PERFORM 700-CHECK-FEE THRU E-FEE
                ADD WITHH TO A-W.
            MOVE ACT-REC TO OUT-PUT
            WRITE OUT-PUT AFTER ADVANCING 1 LINES.
            MOVE "" TO ACT-ERROR.
-           PERFORM READ-RECORD.
-       E-SAME-ACCOUNT.
+           PERFORM 100-READ-RECORD.
+       E-300-SAME-ACCOUNT.
        EXIT.
-       
-       SEARCH-TABLE.
+      
+      * Searches the table to beginning balances.
+       400-SEARCH-TABLE.
            SET INX-A TO 1
                SEARCH BG-BAL OF BG-BAL-TABLE
                    WHEN T-ACCT(INX-A) = CUR-ACCT
                        MOVE T-BAL(INX-A) TO A-BALANCE
                END-SEARCH.
-       
-       HIGH.
+      
+      * Decides if the account should be recorded as high balance.
+       500-HIGH.
           ADD A-BALANCE TO ACT-TOTAL.
           ADD 1 TO ACT-COUNT.
           IF A-BALANCE IS GREATER THAN H-B
@@ -263,10 +270,11 @@
           IF CUR-TYPE = "M" AND A-BALANCE IS GREATER THAN H-M
                MOVE A-BALANCE TO H-M
                MOVE CUR-NAME TO H-M-N.
-       E-HIGH.
+       E-500-HIGH.
        EXIT.
-       
-       GET-INTREST.
+      
+      * Gets the intrest for the M accounts.
+       600-GET-INTREST.
            IF CUR-TYPE = "M" AND A-BALANCE IS GREATER 150
                MULTIPLY A-BALANCE BY .0163 GIVING T-INT
                ADD T-INT TO A-BALANCE
@@ -277,7 +285,8 @@
        E-INTREST.
        EXIT.
        
-       CHECK-FEE.
+      * Checks for fees on the account.
+       700-CHECK-FEE.
            IF A-BALANCE IS LESS THAN 150
                MOVE "MINIMUM CHARGE" TO ACT-ERROR
                MOVE 30 TO ACT-FEE
@@ -289,8 +298,9 @@
                MOVE 0 TO ACT-FEE.
        E-FEE.
        EXIT.
-           
-       CLOSEUP.
+        
+      * Prints the final footers and closes the files.
+       800-CLOSEUP.
            MOVE ACT-FOOTER-1 TO OUT-PUT
            WRITE OUT-PUT AFTER ADVANCING 1 LINE
            MOVE ACT-FOOTER-2 TO OUT-PUT
@@ -302,11 +312,11 @@
            MOVE T-FEE TO ACT-F-TOT
            MOVE ACT-FOOTER-2 TO OUT-PUT
            WRITE OUT-PUT BEFORE ADVANCING 2 LINE.
-           PERFORM FINAL-PRINT
+           PERFORM 900-FINAL-PRINT
            CLOSE BANKIN BANKOUT.
            STOP RUN.
-       
-       FINAL-PRINT.
+      * Prints out the final high balances and average.
+       900-FINAL-PRINT.
            MOVE END-PRINT-1 TO OUT-PUT
            WRITE OUT-PUT AFTER ADVANCING 1 LINE.
            MOVE H-B-N TO HI-B-NAME
