@@ -1,13 +1,21 @@
+***********************************************************
+* HOMEWORK #1 Part 1
+* This program takes in data from the BANKFILE.DAT and 
+* proceses the records. Depending on the bank account
+* it will debit or credit it. It will then produce a report
+* at BANKREPXXX.RPT. 
+***********************************************************
        IDENTIFICATION DIVISION.                                                 
        PROGRAM-ID. BANK.                                                        
-       AUTHOR. ERIC EDGARS.
+       AUTHOR. Kody Brand.
        ENVIRONMENT DIVISION.                                                    
        CONFIGURATION SECTION.                                                   
        SOURCE-COMPUTER. IBM-Z.                                              
        OBJECT-COMPUTER. IBM-Z.                                               
        INPUT-OUTPUT SECTION.                                                    
        FILE-CONTROL.                                                            
-            SELECT BANKIN  ASSIGN TO UT-S-BANKING.
+            SELECT BANKIN  ASSIGN TO UT-S-BANKING
+            ORGANIZATION IS LINE SEQUENTIAL.
             SELECT BANKOUT ASSIGN TO UT-S-BANKOUT.
        DATA DIVISION.                                                           
        FILE SECTION.                                                            
@@ -15,177 +23,249 @@
            LABEL RECORDS OMITTED                                                
            RECORDING MODE F.                                                    
        01  INPUT-RECORD.                                                        
-           02  KODE PIC X.                                                      
-           02  FILLER PIC X.                                                    
-           02  CUSNAME PIC X(21).                                               
-           02  FILLER PIC X.                                                    
-           02  ANUM PIC X(5).
-           02  FILLER PIC X(10).                                                
-           02  DEP PIC 9(4)V99.                                                 
-           02  WITHH PIC 9(4)V99.                                               
+           05  KODE     PIC X.                                               
+           05  FILLER   PIC X.                                                 
+           05  CUSNAME  PIC X(21).                                             
+           05  FILLER   PIC X.                                                
+           05  ANUM     PIC X(5).
+           05  FILLER   PIC X(10).                                            
+           05  DEP      PIC 9(4)V99.                                           
+           05  WITHH    PIC 9(4)V99.                                          
        FD  BANKOUT                                                              
            LABEL RECORDS OMITTED                                                
            RECORDING MODE F.                                                    
-       01  OUT-PUT PIC X(132).                                                  
+       01  OUT-PUT      PIC X(132).  
        WORKING-STORAGE SECTION.                                                 
-      * THIS IS WORKING STORAGE SECTION.                                        
-       77  TOTSD PIC 9(4)V99.
-       77  NUMA PIC X(5).
-       77  C-TOTSD PIC 9(4)V99.
-       77  TOTCD PIC 9(4)V99.
-       77  A-SW PIC 9(4)V99.                                                    
-       77  THESWITCH PIC 9.                                                     
-       77  BALANCE PIC 9999V99.                                                 
-       77  TOTSW PIC 9(4)V99.
-       77  SDD PIC 99 .
-       77  MONTH-INT PIC 9999V99.                                               
-       77  CWW PIC 99.
-       77  TOTCW PIC 99.
-       77  P-BAL PIC 9999V99.                                                   
-       77  C-TOTCD PIC 9(4)V99.
-       77  APR PIC V999.                                                        
-       77  C-TOTCW PIC 9(4)V99.
-       77  A-CW PIC 9(4)V99.
-       77  C-TOTSW PIC 9(4)V99.
-       77  FIN-CHG PIC 9999V99.                                                 
-       77  A-SD PIC 9(4)V99.
-       77  FIRST-RECORD PIC 9 VALUE 1.                                          
-       77  SWW PIC 99.
-       77  A-CD PIC 9(4)V99.                                                    
-       77  CDD PIC 99.
-       77  UT-S-BANKING PIC X(50) VALUE "C:\CS4230\BANKFILE.DAT".
-       77  UT-S-BANKOUT PIC X(50) VALUE "C:\CS4230\BANKREPXXX.RPT".
-       01  HEADER1.                                                             
-           02  FILLER PIC X(35).                                                
-           02  FILLER PIC X(20) VALUE "BANK OF WISCONSIN".                      
-       01  TOTAL1.                                                              
-           02  FILLER PIC X(10).                                                
-           02  TOTSDO PIC $(4)V99.                                              
-           02  FILLER PIC X(12).                                                
-           02  TOTCWO PIC $(4)V99.                                              
-           02  FILLER PIC X(6).                                                 
-           02  TOTCDO PIC $(4)V99.                                              
-           02  TOTSWO PIC $(4)V99.                                              
-       01  MESS-LINE.                                                           
-           03 FILLER PIC X(10).                                                 
-           03 MESS-LINE-ITEM  PIC X(50) 
-		                             VALUE "Bad Account Code".                                        
-       01  AVG1.                                                                
-           02 FILLER PIC X(5).                                                  
-           02 FILLER PIC X(15) VALUE "AVR SAV DEP = ".                          
-           02 SD-A PIC 9(4)V99.                                                 
-           02 FILLER PIC X(9).                                                  
-           02 FILLER PIC X(15) VALUE "AVR SAV WITH = ".                         
-           02 SW-A PIC 9(4)V99.                                                 
-           02 CW-A PIC 9(4)V99.                                                 
-           02 FILLER PIC X(15) VALUE "AVR CHK WITH = ".                         
-           02 FILLER PIC X(20).                                                 
-           02 CD-A PIC 9(4)V99.                                                 
-       01  OUTLINE.                                                             
-           02 FILLER PIC X(5).                                                  
-           02 CNAME PIC X(21).                                                  
-           02 FILLER PIC X(7).                                                  
-           02 ACTNUM PIC X(5).                                                  
-           02 FILLER PIC X(12).                                                 
-           02 DEPS PIC $ZZZZ.99.                                                
-           02 FILLER PIC X(17).                                                 
-           02 WITHR PIC $ZZZZV99.                                               
+       77  UT-S-BANKING PIC X(50) VALUE 'C:\CS4230\BANKFILE.DAT'.
+       77  UT-S-BANKOUT PIC X(50) VALUE 'C:\CS4230\BANKREPXXX.RPT'.
+       77  CUR-ACCT     PIC X(5).
+       77  CUR-NAME     PIC X(21). 
+       77  CUR-TYPE     PIC X.
+       77  FIRST-RECORD PIC 9      VALUE 1.
+       77  FIRST-RUN    PIC 9      VALUE 1.
+       77  A-BALANCE    PIC S9(4)V99    VALUE 0.
+       77  A-W          PIC S9(4)V99    VALUE 0.
+       77  A-D          PIC S9(4)V99    VALUE 0.
+       77  A-F          PIC S9(4)V99    VALUE 0.
+       77  H-B          PIC 9(7)V99     VALUE 0.
+       77  H-B-N        PIC X(16).
+       77  H-M          PIC 9(7)V99     VALUE 0.
+       77  H-M-N        PIC X(16).
+       77  ACT-COUNT    PIC 9(3)        VALUE 0.
+       77  ACT-TOTAL    PIC 9(7)V99     VALUE 0.
+       77  ACT-AVG      PIC 9(7)V99     VALUE 0.
+       01  WS-CURRENT-DATE-FIELDS.
+             05  WS-CURRENT-DATE.
+                 10  WS-CURRENT-YEAR    PIC  9(4).
+                 10  WS-CURRENT-MONTH   PIC  9(2).
+                 10  WS-CURRENT-DAY     PIC  9(2).
+       01  HEADER-1.
+           05  DATE-M   PIC 99.  
+           05  FILLER   PIC X     VALUE "/".
+           05  DATE-D   PIC 99.
+           05  FILLER   PIC X     VALUE "/".
+           05  DATE-Y   PIC 9999.
+           05  FILLER   PIC X(25).
+           05  FILLER   PIC X(17) VALUE "BANK OF WISCONSIN".
+           05  FILLER   PIC X(28).
+           05  FILLER   PIC X(5)   VALUE "PAGE ".
+           05  H-PAGE   PIC 9(3)   VALUE 001.
+       01  HEADER-2.                               
+           05  FILLER   PIC X(80).
+           05  FILLER   PIC X(10)   VALUE "KODY BRAND".
+       01  ACT-HEADER-1.
+           05  FILLER      PIC X(15)   VALUE "ACCOUNT CONTACT".
+           05  FILLER      PIC X(8).
+           05  FILLER      PIC X(4)    VALUE "TYPE".
+           05  FILLER      PIC X(2).
+           05  FILLER      PIC X(17)   VALUE "BEGINNING BALANCE".
+           05  FILLER      PIC X(3).
+           05  FILLER      PIC X(12)   VALUE "WIDTHDRAWALS".
+           05  FILLER      PIC X(5).
+           05  FILLER      PIC X(8)   VALUE "DEPOSITS".
+           05  FILLER      PIC X(5).
+           05  FILLER      PIC X(4)    VALUE "FEES".
+       01  ACT-HEADER-2.
+           05  ACT-NAME    PIC X(16).
+           05  FILLER      PIC X(7).
+           05  ACT-TYPE    PIC X.
+           05  FILLER      PIC X(3).
+           05  ACT-BEG     PIC $,$$$,$$9.99.
+       01  ACT-REC.
+           05  FILLER      PIC X(2).
+           05  ACT-ERROR   PIC X(20).
+           05  FILLER      PIC X(27).
+           05  ACT-WID     PIC $,$$$,$$9.99.
+           05  FILLER      PIC X(1).
+           05  ACT-DEB     PIC $,$$$,$$9.99.
+           05  FILLER      PIC X(1).
+           05  ACT-FEE     PIC $,$$$,$$9.99.
+       01  ACT-FOOTER-1.
+           05  FILLER      PIC X(15)   VALUE "ACCOUNT CONTACT".
+           05  FILLER      PIC X(8).
+           05  FILLER      PIC X(4)    VALUE "TYPE".
+           05  FILLER      PIC X(2).
+           05  FILLER      PIC X(17)   VALUE "BEGINNING BALANCE".
+           05  FILLER      PIC X(3).
+           05  FILLER      PIC X(12)   VALUE "WIDTHDRAWALS".
+           05  FILLER      PIC X(5).
+           05  FILLER      PIC X(8)    VALUE "DEPOSITS".
+           05  FILLER      PIC X(6).
+           05  FILLER      PIC X(14)   VALUE "ENDING BALANCE".
+       01  ACT-FOOTER-2.
+           05  ACT-NAME    PIC X(16).
+           05  FILLER      PIC X(7).
+           05  ACT-TYPE    PIC X.
+           05  FILLER      PIC X(3).
+           05  ACT-BEG     PIC $,$$$,$$9.99.
+           05  FILLER      PIC X(10).
+           05  ACT-W-TOT   PIC $,$$$,$$9.99.
+           05  FILLER      PIC X(1).
+           05  ACT-D-TOT   PIC $,$$$,$$9.99.
+           05  FILLER      PIC X(6).
+           05  ACT-E-TOT   PIC +$,$$$,$$9.99.
+       01  END-PRINT-1.
+           05  FILLER      PIC X(15)   VALUE "HIGHEST BALANCE".
+           05  FILLER      PIC X(8).
+           05  FILLER      PIC X(12)   VALUE "MONEY MARKET".
+           05  FILLER      PIC X(11).
+           05  FILLER      PIC X(15)   VALUE "AVERAGE BALANCE".
+       01  END-PRINT-2.
+           05  HI-B-NAME   PIC X(16).
+           05  FILLER      PIC X(7).
+           05  HI-M-NAME   PIC X(16).
+           05  FILLER      PIC X(2).
+           05  HI-AVG      PIC $,$$$,$$9.99.
+       01  END-PRINT-3.
+           05  HI-B-AMT    PIC $,$$$,$$9.99.
+           05  FILLER      PIC X(10).
+           05  HI-M-AMT    PIC $,$$$,$$9.99.
        PROCEDURE DIVISION.                                                      
-       BEGINHERE.                                                               
-           OPEN INPUT BANKIN.                                                   
-           OPEN OUTPUT BANKOUT.                                                 
-           MOVE HEADER1 TO OUT-PUT.                                             
-           WRITE OUT-PUT AFTER ADVANCING 2 LINES.                               
-       CHECK-RTN.                                                               
-           MOVE ZEROS TO THESWITCH.                                             
-      * CHECK THE SWITCH                                                        
-           IF THESWITCH = 0 GO TO STARTHERE.                                    
-       ENDIT.                                                                   
-           CLOSE BANKIN BANKOUT. STOP RUN.                                      
-       STARTHERE.                                                               
-           READ BANKIN AT END GO TO GOTHERE.                                    
-      * CHECK TO SEE IF IT IS FIRST RECORD                                      
-           IF FIRST-RECORD = 1 GO TO OUTTHERE ELSE GO TO SOMEWHERE.             
-       PROCESS.                                                                 
-           IF ANUM = NUMA IF KODE = "C" GO TO CHECKING ELSE GO TO               
-           SAVING ELSE GO TO BREAK-THELOOP.                                     
-       CHECKING.                                                                
-           ADD DEP TO TOTCD. 
-           ADD WITHH TO TOTCW. 
-           ADD DEP TO C-TOTCD. 
-           ADD WITHH TO C-TOTCW.
-           ADD 1 TO CDD.
-           ADD 1 TO CWW.
-           GO TO PRINTIT.
-       CHECKIT. 
-           IF WITHH GREATER THAN BALANCE THEN 
-           MOVE "NOT ENOUGH FUNDS IN ACCOUNT" TO MESS-LINE-ITEM. 
-           GO TO MESS-PRINT.
-       SAVING.                                                                  
-           ADD DEP TO TOTSD. 
-           ADD WITHH TO TOTSW. 
-           ADD DEP TO C-TOTSD.            
-           ADD WITHH TO C-TOTSW. 
-           ADD 1 TO SDD. 
-           ADD 1 TO SWW. GO TO              
-           STARTHERE.                                                             
-      * CHECK IF THE BALANCE IS LESS THAN 500                                   
-       CHECK-AGAIN. 
-           IF BALANCE LESS THAN 500 
-               MOVE 10.00 TO FIN-CHG              
-               SUBTRACT FIN-CHG FROM BALANCE.                                       
-       OUTTHERE.                                                                
-           MOVE ANUM TO NUMA.
-           MOVE ZEROS TO FIRST-RECORD.
-           GO TO PROCESS.        
-       SOMEWHERE.                                                               
-           GO TO PROCESS.                                                       
-       BREAK-THELOOP.                                                           
-           GO TO PROCESS.
-           MOVE C-TOTSD TO TOTSDO. 
-           MOVE C-TOTSW TO TOTSWO. 
-           MOVE C-TOTCD TO TOTCDO. 
-           MOVE C-TOTCW TO TOTSWO. 
-           MOVE TOTAL1 TO OUT-PUT. 
+       MAIN.      
+           OPEN INPUT BANKIN.
+           OPEN OUTPUT BANKOUT.
+           MOVE FUNCTION CURRENT-DATE TO WS-CURRENT-DATE-FIELDS.
+           MOVE WS-CURRENT-MONTH TO DATE-M.
+           MOVE WS-CURRENT-DAY TO DATE-D.
+           MOVE WS-CURRENT-YEAR TO DATE-Y.
+           MOVE HEADER-1 TO OUT-PUT.
+           WRITE OUT-PUT.
+           MOVE HEADER-2 TO OUT-PUT.
            WRITE OUT-PUT AFTER ADVANCING 1 LINES.
-           MOVE ANUM TO NUMA. 
-           MOVE 1 TO FIRST-RECORD. 
-           GO TO PRINTIT.                             
-       PRINTIT.                                                                 
-           MOVE CUSNAME TO CNAME. 
-           MOVE ANUM TO ACTNUM. 
-           MOVE DEP TO DEPS.        
-           MOVE WITHH TO WITHR. 
-           MOVE OUTLINE TO OUT-PUT. 
-           WRITE OUT-PUT          
-           AFTER ADVANCING 1 LINES. 
-           GO TO STARTHERE.                            
-       GOTHERE.                                                                 
-           DIVIDE TOTSD BY SDD GIVING A-SD. 
-           DIVIDE TOTCD BY CDD GIVING A-CD.
-           DIVIDE TOTSW BY SWW GIVING A-SW. 
-           DIVIDE TOTCW BY CWW GIVING A-CW. 
-           MOVE A-SD TO SD-A. 
-           MOVE A-CD TO CD-A. 
-           MOVE A-SW TO SW-A. 
-           MOVE A-CW TO SW-A.
-           MOVE AVG1 TO OUT-PUT. 
+       READ-RECORD.
+           READ BANKIN AT END PERFORM CLOSEUP.
+           IF ANUM = CUR-ACCT PERFORM SAME-ACCOUNT THRU E-SAME-ACCOUNT
+           ELSE
+               IF FIRST-RUN = 0
+                   MOVE ACT-FOOTER-1 TO OUT-PUT
+                   WRITE OUT-PUT AFTER ADVANCING 1 LINE
+                   MOVE ACT-FOOTER-2 TO OUT-PUT
+                   MOVE CUR-NAME TO ACT-NAME OF ACT-FOOTER-2
+                   MOVE CUR-TYPE TO ACT-TYPE OF ACT-FOOTER-2
+                   MOVE A-BALANCE TO ACT-E-TOT
+                   MOVE A-D TO ACT-D-TOT
+                   MOVE A-W TO ACT-W-TOT
+                   MOVE ACT-FOOTER-2 TO OUT-PUT
+                   WRITE OUT-PUT BEFORE ADVANCING 2 LINE.
+           MOVE 0 TO FIRST-RUN
+           PERFORM HIGH THRU E-HIGH.
+           PERFORM NEW-ACCOUNT THRU E-NEW-ACCOUNT.
+       NEW-ACCOUNT.
+           MOVE 0 TO A-BALANCE.
+           MOVE 0 TO A-D.
+           MOVE 0 TO A-W.
+           MOVE 0 TO A-F.
+           MOVE 0 TO ACT-FEE.
+           MOVE ANUM TO CUR-ACCT.
+           MOVE CUSNAME TO CUR-NAME.
+           MOVE KODE TO CUR-TYPE.
+           MOVE ACT-HEADER-1 TO OUT-PUT
            WRITE OUT-PUT AFTER ADVANCING 1 LINES.
-           MOVE 1 TO THESWITCH. GO TO ENDIT.
-       MESS-PRINT.                                                              
-           MOVE MESS-LINE TO OUT-PUT.
-           WRITE OUT-PUT AFTER ADVANCING             
-           1 LINES.
-           GO TO STARTHERE.
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
-                                                                                
+           MOVE CUSNAME TO ACT-NAME OF ACT-HEADER-2
+           MOVE KODE TO ACT-TYPE OF ACT-HEADER-2
+           MOVE A-BALANCE TO ACT-BEG OF ACT-HEADER-2
+           MOVE A-BALANCE TO ACT-BEG OF ACT-FOOTER-2
+           MOVE ACT-HEADER-2 TO OUT-PUT
+           WRITE OUT-PUT AFTER ADVANCING 1 LINES.
+           PERFORM SAME-ACCOUNT THRU E-SAME-ACCOUNT.
+       E-NEW-ACCOUNT.
+       EXIT.
+       
+       SAME-ACCOUNT.
+           IF DEP IS ZEROES MOVE ZEROES TO ACT-DEB
+           ELSE 
+               MOVE DEP TO ACT-DEB
+               ADD DEP TO A-BALANCE
+               ADD DEP TO A-D
+               MOVE 0 TO ACT-FEE.
+           IF WITHH IS ZEROES MOVE ZEROES TO ACT-WID
+           ELSE 
+               MOVE WITHH TO ACT-WID
+               SUBTRACT WITHH FROM A-BALANCE
+               PERFORM CHECK-FEE THRU E-FEE
+               ADD WITHH TO A-W.
+           MOVE ACT-REC TO OUT-PUT
+           WRITE OUT-PUT AFTER ADVANCING 1 LINES.
+           MOVE "" TO ACT-ERROR.
+           PERFORM READ-RECORD.
+       E-SAME-ACCOUNT.
+       EXIT.
+       
+       HIGH.
+          ADD A-BALANCE TO ACT-TOTAL.
+          ADD 1 TO ACT-COUNT.
+          IF A-BALANCE IS GREATER THAN H-B
+               MOVE A-BALANCE TO H-B
+               MOVE CUR-NAME  TO H-B-N.
+          IF CUR-TYPE = "M" AND A-BALANCE IS GREATER THAN H-M
+               MOVE A-BALANCE TO H-M
+               MOVE CUR-NAME TO H-M-N.
+       E-HIGH.
+       EXIT.
+       
+       CHECK-FEE.
+           IF A-BALANCE IS LESS THAN 150
+               MOVE "MINIMUM CHARGE" TO ACT-ERROR
+               MOVE 30 TO ACT-FEE
+               ADD 30 TO A-F
+               SUBTRACT 30 FROM A-BALANCE
+           ELSE
+               MOVE "" TO ACT-ERROR
+               MOVE 0 TO ACT-FEE.
+       E-FEE.
+       EXIT.
+           
+       CLOSEUP.
+           MOVE ACT-FOOTER-1 TO OUT-PUT
+           WRITE OUT-PUT AFTER ADVANCING 1 LINE
+           MOVE ACT-FOOTER-2 TO OUT-PUT
+           MOVE CUR-NAME TO ACT-NAME OF ACT-FOOTER-2
+           MOVE CUR-TYPE TO ACT-TYPE OF ACT-FOOTER-2
+           MOVE A-BALANCE TO ACT-E-TOT
+           MOVE A-D TO ACT-D-TOT
+           MOVE A-W TO ACT-W-TOT
+           MOVE ACT-FOOTER-2 TO OUT-PUT
+           WRITE OUT-PUT BEFORE ADVANCING 2 LINE.
+           PERFORM FINAL-PRINT
+           CLOSE BANKIN BANKOUT.
+           STOP RUN.
+       
+       FINAL-PRINT.
+           MOVE END-PRINT-1 TO OUT-PUT
+           WRITE OUT-PUT AFTER ADVANCING 1 LINE.
+           MOVE H-B-N TO HI-B-NAME
+           MOVE H-B TO HI-B-AMT
+           MOVE H-M-N TO HI-M-NAME
+           MOVE H-M TO HI-M-AMT
+           DIVIDE ACT-TOTAL BY ACT-COUNT GIVING ACT-AVG.
+           MOVE ACT-AVG TO HI-AVG
+           MOVE END-PRINT-2 TO OUT-PUT
+           WRITE OUT-PUT AFTER ADVANCING 1 LINE.
+           MOVE END-PRINT-3 TO OUT-PUT
+           WRITE OUT-PUT AFTER ADVANCING 1 LINE.
+           
+           
+           
+           
+           
+           

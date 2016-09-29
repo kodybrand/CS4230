@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <ProjectGuid>{880CF330-2284-46F0-9C22-818544115236}</ProjectGuid>
     <OutputName>Homework1</OutputName>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>Homework1</RootNamespace>
     <PreserveCase>True</PreserveCase>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
@@ -14,7 +14,6 @@
     <OutputPath>.\bin\Debug\</OutputPath>
     <DebugSymbols>True</DebugSymbols>
     <MaxError>100</MaxError>
-    <SourceFormat>Variable</SourceFormat>
     <DefineConstants>DEBUG</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
