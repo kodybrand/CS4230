@@ -1,5 +1,5 @@
 ***********************************************************
-* HOMEWORK #1 Part 1
+* HOMEWORK #1 Part 2
 * This program takes in data from the BANKFILE.DAT and 
 * proceses the records. Depending on the bank account
 * it will debit or credit it. It will then produce a report
