@@ -19,10 +19,12 @@
        01  OUT-PUT      PIC X(132).
        WORKING-STORAGE SECTION.
        01  END-OF-FILE PIC X           VALUE 'N'.
-       77 UT-S-PAYIN   PIC X(50)       VALUE 'C:\CS4230\HW2.DAT'.
-       77 UT-S-PAYOUT  PIC X(50)       VALUE 'C:\CS4230\HW2.RPT'.
+       77 UT-S-PAYIN   PIC X(50)       
+               VALUE 'C:\Projects\CS4230\HW2.DAT'.
+       77 UT-S-PAYOUT  PIC X(50)       
+               VALUE 'C:\Projects\CS4230\HW2.RPT'.
        77 PAGE-COUNT   PIC 9999        VALUE 1.
-       77 WS-R-HOURS   PIC 99V99       PACKED-DECIMAL
+       77 WS-R-HOURS   PIC 99V99       PACKED-DECIMAL.
        77 WS-OT-HOURS  PIC 99V99       VALUE 0.
        77 WS-OT-RATE   PIC 99V9        VALUE 0.
        77 WS-RATE      PIC 9(5)V99     VALUE 0.
@@ -91,7 +93,7 @@
        01  RECORD-2.
            05  FILLER      PIC X(5).
            05  FILLER      PIC X(7)    VALUE "HOURS: ".
-           05  2-R-HOURS   PIC 99V99 .
+           05  2-R-HOURS   PIC 99.99 .
            05  FILLER      PIC X(8).
            05  FILLER      PIC X(10)   VALUE "OT HOURS: ".
            05  2-OT-HOURS  PIC 99.99.
@@ -110,7 +112,7 @@
            05  3-OT-RATE   PIC 9.99.
            05  FILLER      PIC X(25).
            05  FILLER      PIC X(11)   VALUE "TAX RATE: %".
-           05  3-FED-RATE  PIC V999.
+           05  3-FED-RATE  PIC .999.
            05  FILLER      PIC X(5).
            05  FILLER      PIC X(10)   VALUE "NET PAY: ".
            05  3-NET       PIC $$$$9.99.
@@ -201,11 +203,22 @@
                MOVE R-SALARY TO WS-RATE
                COMPUTE WS-GROSS = (40 * WS-RATE) 
                        + ( WS-OT-HOURS * WS-OT-RATE)
+           ELSE
+               MOVE R-HOURS TO WS-R-HOURS
+               MOVE ZERO TO WS-OT-HOURS
+               MOVE R-SALARY TO WS-RATE
+               COMPUTE WS-GROSS = WS-R-HOURS * WS-RATE
+           END-IF
+           
                MOVE WS-R-HOURS TO 2-R-HOURS
                MOVE WS-OT-HOURS TO 2-OT-HOURS
                MOVE WS-GROSS TO 2-GROSS
                MOVE RECORD-2 TO OUT-PUT
                WRITE OUT-PUT AFTER ADVANCING 1 LINES.
+           MOVE R-SALARY TO 3-RATE.
+           MOVE ZERO TO 3-OT-RATE.
+           MOVE RECORD-3 TO OUT-PUT
+           WRITE OUT-PUT AFTER ADVANCING 1 lines.
     
        450-EXIT.
            EXIT.
