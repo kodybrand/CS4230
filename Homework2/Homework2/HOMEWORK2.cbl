@@ -161,9 +161,6 @@
            ELSE
                PERFORM 450-HOURLY THRU 450-EXIT
            END-IF.
-           
-           
-           
        300-EXIT.
            EXIT.
        
