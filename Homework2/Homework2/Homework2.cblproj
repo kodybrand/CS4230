@@ -9,12 +9,12 @@
     <RootNamespace>Homework2</RootNamespace>
     <PreserveCase>True</PreserveCase>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <StartupObject>PAYROLL</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>.\bin\Debug\</OutputPath>
     <DebugSymbols>True</DebugSymbols>
     <MaxError>100</MaxError>
-    <SourceFormat>Variable</SourceFormat>
     <DefineConstants>DEBUG</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -43,6 +43,7 @@
     <Import Include="System.Text" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CHECK.cbl" />
     <Compile Include="HOMEWORK2.cbl" />
   </ItemGroup>
   <ItemGroup>
