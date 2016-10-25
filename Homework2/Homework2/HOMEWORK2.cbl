@@ -1,3 +1,9 @@
+***********************************************************       
+* HOMEWORK #2
+* KODY BRAND
+* This program reads in payroll data and calculates payroll
+* and then generating a report based on the data.
+***********************************************************       
        IDENTIFICATION DIVISION.
        PROGRAM-ID. PAYROLL.
        AUTHOR. KODY BRAND.
@@ -54,19 +60,19 @@
                  10  WS-CURRENT-MONTH   PIC  9(2).
                  10  WS-CURRENT-DAY     PIC  9(2).
        01 TX-RATE-DATA.
-           05  FILLER  PIC X(7)   VALUE '0100000'.
-           05  FILLER  PIC X(7)   VALUE '0200170'.
-           05  FILLER  PIC X(7)   VALUE '0300190'.
-           05  FILLER  PIC X(7)   VALUE '0400220'.
-           05  FILLER  PIC X(7)   VALUE '0500240'.
-           05  FILLER  PIC X(7)   VALUE '0600255'.
-           05  FILLER  PIC X(7)   VALUE '0700265'.
-           05  FILLER  PIC X(7)   VALUE '0800280'.
-           05  FILLER  PIC X(7)   VALUE '0900295'.
-           05  FILLER  PIC X(7)   VALUE '1200315'.
+           05  FILLER  PIC X(11)   VALUE '00000100000'.
+           05  FILLER  PIC X(11)   VALUE '01010200170'.
+           05  FILLER  PIC X(11)   VALUE '02010300190'.
+           05  FILLER  PIC X(11)   VALUE '03010400220'.
+           05  FILLER  PIC X(11)   VALUE '04010500240'.
+           05  FILLER  PIC X(11)   VALUE '05010600255'.
+           05  FILLER  PIC X(11)   VALUE '06010700265'.
+           05  FILLER  PIC X(11)   VALUE '07010800280'.
+           05  FILLER  PIC X(11)   VALUE '08010900295'.
        01 TX-RATE-TABLE REDEFINES TX-RATE-DATA.
            05 TX-RATE OCCURS 9 TIMES INDEXED BY INX-A.
-               10 T-PAY    PIC 9(4).
+               10 T-LOW    PIC 9(4).
+               10 T-HIGH   PIC 9(4).
                10 T-RATE   PIC V999.
        01  HEADER-1.
            05  DATE-M      PIC 99.
@@ -93,7 +99,7 @@
        01  RECORD-2.
            05  FILLER      PIC X(5).
            05  FILLER      PIC X(7)    VALUE "HOURS: ".
-           05  2-R-HOURS   PIC 99.99 .
+           05  2-R-HOURS   PIC 99.99.
            05  FILLER      PIC X(8).
            05  FILLER      PIC X(10)   VALUE "OT HOURS: ".
            05  2-OT-HOURS  PIC 99.99.
@@ -117,6 +123,7 @@
            05  FILLER      PIC X(10)   VALUE "NET PAY: ".
            05  3-NET       PIC $$$$9.99.
        PROCEDURE DIVISION.
+      * Starts the program
        000-MAIN.
            OPEN INPUT PAYROLL-FILE.
            OPEN OUTPUT PAYROLL-RPT.
@@ -129,14 +136,14 @@
            MOVE HEADER-2 TO OUT-PUT
            WRITE OUT-PUT AFTER ADVANCING 1 LINES
            PERFORM 100-READ-RECORD THRU 100-EXIT.
-       
+      * Reads in 1 records
        100-READ-RECORD.
-           READ PAYROLL-FILE AT END PERFORM CLOSE-UP.
+           READ PAYROLL-FILE AT END PERFORM 999-CLOSE-UP.
            MOVE PAYROLL-REC TO R-RECORD.
            PERFORM 200-CHECK-RECORD THRU 200-EXIT.
        100-EXIT.
            EXIT.
-           
+      * Checks the record using IMB Check Digit sub program    
        200-CHECK-RECORD.
            CALL "CHECK" USING 
                BY CONTENT R-EMPNUM
@@ -149,7 +156,7 @@
            PERFORM 100-READ-RECORD THRU 100-EXIT.
        200-EXIT.
            EXIT.
-           
+      * Figures out how to handle the records based on type    
        300-PROCESS.
            MOVE R-EMPNUM TO 1-EMPNUM.
            MOVE R-PAYCODE TO 1-PAYCODE.
@@ -163,27 +170,28 @@
            END-IF.
        300-EXIT.
            EXIT.
-       
+      
+      * Prints out an error
        350-ERROR.
            MOVE "ERROR VALIDATING EMPLOYEE" TO OUT-PUT.
            WRITE OUT-PUT AFTER ADVANCING 2 LINES.
        350-EXIT.
            EXIT.
-           
+      
+      * Handles the data if salary type    
        400-SALARY.
            PERFORM 500-SEARCH-TABLE THRU 500-EXIT.
            MOVE R-SALARY TO WS-GROSS.
-           COMPUTE WS-FED-TAX = WS-GROSS * .340
+           COMPUTE WS-FED-TAX = WS-GROSS * WS-FED-RATE
            COMPUTE WS-NET = WS-GROSS - WS-FED-TAX
-           MOVE R-HOURS TO WS-R-HOURS 
-           MOVE WS-R-HOURS TO 2-R-HOURS
+           MOVE R-HOURS TO 2-R-HOURS
            MOVE ZERO TO 2-OT-HOURS
            MOVE WS-GROSS TO 2-GROSS
            MOVE WS-FED-TAX TO 2-FED-TAX
            MOVE RECORD-2 TO OUT-PUT
            WRITE OUT-PUT AFTER ADVANCING 1 LINES.
            
-           MOVE ZERO TO 3-RATE
+           MOVE R-SALARY TO 3-RATE
            MOVE ZERO TO 3-OT-RATE
            MOVE WS-FED-RATE TO 3-FED-RATE
            MOVE WS-NET TO 3-NET
@@ -191,7 +199,8 @@
            WRITE OUT-PUT AFTER ADVANCING 1 LINES.
        400-EXIT.
            EXIT.
-       
+      
+      * Handles the data if the type is hourly.
        450-HOURLY.
            IF R-HOURS > 40 THEN    
                COMPUTE WS-OT-HOURS = R-HOURS - 40
@@ -200,38 +209,48 @@
                MOVE R-SALARY TO WS-RATE
                COMPUTE WS-GROSS = (40 * WS-RATE) 
                        + ( WS-OT-HOURS * WS-OT-RATE)
-           ELSE
+           END-IF
+          IF R-HOURS < 40 THEN
                MOVE R-HOURS TO WS-R-HOURS
                MOVE ZERO TO WS-OT-HOURS
                MOVE R-SALARY TO WS-RATE
                COMPUTE WS-GROSS = WS-R-HOURS * WS-RATE
            END-IF
+           PERFORM 500-SEARCH-TABLE THRU 500-EXIT.
+           COMPUTE WS-FED-TAX = WS-GROSS * WS-FED-RATE
+           COMPUTE WS-NET = WS-GROSS - WS-FED-TAX
            
                MOVE WS-R-HOURS TO 2-R-HOURS
                MOVE WS-OT-HOURS TO 2-OT-HOURS
                MOVE WS-GROSS TO 2-GROSS
+               MOVE WS-FED-TAX TO 2-FED-TAX
+               MOVE WS-FED-RATE TO 3-FED-RATE
                MOVE RECORD-2 TO OUT-PUT
                WRITE OUT-PUT AFTER ADVANCING 1 LINES.
            MOVE R-SALARY TO 3-RATE.
            MOVE ZERO TO 3-OT-RATE.
+           MOVE WS-NET TO 3-NET
            MOVE RECORD-3 TO OUT-PUT
            WRITE OUT-PUT AFTER ADVANCING 1 lines.
     
        450-EXIT.
            EXIT.
-       
+      
+      * Searches the table for tax rate
        500-SEARCH-TABLE.
            MOVE 0 TO WS-FED-RATE
            SET INX-A TO 1
                SEARCH TX-RATE OF TX-RATE-TABLE
-                   WHEN T-PAY(INX-A) < R-SALARY
+                   WHEN T-LOW(INX-A) < WS-GROSS 
+                   AND R-SALARY < T-HIGH(INX-A)
                        MOVE T-RATE(INX-A) TO WS-FED-RATE
                END-SEARCH.
            IF WS-FED-RATE = 0 THEN 
-               MOVE 340 TO WS-FED-RATE.
+               MOVE .340 TO WS-FED-RATE.
        500-EXIT.
            EXIT.
-       
-       CLOSE-UP.
+      
+      * Closes up the program files.
+       999-CLOSE-UP.
            CLOSE PAYROLL-FILE PAYROLL-RPT.
            STOP RUN.

@@ -1,3 +1,9 @@
+***********************************************************       
+* HOMEWORK #2
+* KODY BRAND
+* The sub program takes in an employee number and run IBM 
+* check digit and sends back the check digit.
+***********************************************************
        PROGRAM-ID. CHECK.
 
        DATA DIVISION.
