@@ -31,8 +31,6 @@
        FD  TRAVEL-REPORT
            REPORT IS TRAVEL-RPT.
            
-       
-           
        WORKING-STORAGE SECTION.
        77 UT-S-TRAVEL-IN       PIC X(50) VALUE "C:\Cobol\travel.dat".
        77 UT-S-TRAVEL-RPT      PIC X(50) VALUE "C:\Cobol\travel.rpt".
@@ -57,7 +55,11 @@
                10  WS-C-STATE      PIC X(20).
                10  WS-C-ZIP        PIC X(10).
            05 WS-CLIENT-TOTAL      PIC 9(5)V99     VALUE ZEROS.
-           05 WS-CURRENT           PIC 9(3).
+           05 WS-CURRENT-TYPE      PIC 9.
+           05 WS-CURRENT-CUST      PIC 9(3).
+       01 WS-TYPE-TOTAL            PIC 9(7)V99     VALUE ZEROS.
+       01 WS-TYPE                  PIC X(10).
+       01 CUR-TYPE                 PIC 9.
        REPORT SECTION.
        RD  TRAVEL-RPT
            CONTROLS ARE FINAL
@@ -86,13 +88,14 @@
                
            05 LINE 4.
                10 COLUMN 1         PIC X(5)    VALUE "TYPE:".
-               10 COLUMN 7         PIC X(10)   SOURCE TR-TYPE.
+               10 COLUMN 7         PIC X(10)   SOURCE WS-TYPE.
                
            05 LINE 6.
                10 COLUMN 4         PIC X(11)   VALUE "CLIENT NAME".
                10 COLUMN 22        PIC X(7)    VALUE "ADDRESS".
                10 COLUMN 48        PIC X(12)   VALUE "PHONE NUMBER".
-               10 COLUMN 65        PIC X(12)   VALUE "CLIENT TOTAL".
+               10 COLUMN 65        PIC X(13)   VALUE "CLIENT CHARGE".
+               10 COLUMN 81        PIC X(12)   VALUE "CLIENT TOTAL".   
        01  DETAIL-LINE
            TYPE IS DETAIL
            LINE IS PLUS 1.
@@ -114,11 +117,26 @@
                                                        GROUP INDICATE.  
            05 COLUMN 57            PIC 9999    SOURCE WS-C-PHONE-3
                                                        GROUP INDICATE.
-           05 COLUMN 65            PIC $$$$9.99 SOURCE TR-COST.  
+           05 COLUMN 65            PIC $$$$$$9.99 SOURCE TR-COST.  
        
        01  ITEM-TOTAL-GROUP TYPE IS CONTROL FOOTING TR-C-NUMBER         
            LINE IS PLUS 1.
-           05  COLUMN 70           PIC $$$$9.99 SOURCE WS-CLIENT-TOTAL.
+           05  COLUMN 81           PIC $$,$$$,$$9.99 SUM TR-COST 
+                                                   UPON DETAIL-LINE.
+       
+       01  TYPE-TOTAL-GROUP TYPE IS CONTROL FOOTING TR-TYPE
+           Next Group Next Page
+           LINE IS PLUS 2.
+           05  COLUMN 90           PIC X(12) VALUE "TYPE TOTAL: ".
+           05  COLUMN 100          PIC $$,$$$,$$9.99
+                                              SUM TR-COST
+                                              UPON DETAIL-LINE.
+           
+       01  TYPE IS CONTROL FOOTING FINAL.
+           05 LINE IS PLUS 2.
+               10  COLUMN  25     PIC X(20) VALUE "GRAND TOTAL: ".
+               10  COLUMN  45     PIC $$,$$$,$$9.99  SUM TR-COST
+                                               UPON DETAIL-LINE.
        PROCEDURE DIVISION.
        000-MAIN.
            MOVE FUNCTION CURRENT-DATE TO WS-CURRENT-DATE-FIELDS.
@@ -128,7 +146,23 @@
                READ TRAVEL-FILE
                    AT END MOVE "YES" TO WS-EOF-SW
                    NOT AT END
+                       EVALUATE TR-TYPE
+                           WHEN 1
+                               MOVE "CRUISE" TO WS-TYPE
+                           WHEN 2
+                               MOVE "AIR" TO WS-TYPE
+                           WHEN 3
+                               MOVE "TOUR" TO WS-TYPE
+                           WHEN 4
+                               MOVE "TRAIN" TO WS-TYPE
+                           WHEN 5
+                               MOVE "OTHER" TO WS-TYPE
+                       END-EVALUATE    
+                       IF NOT CUR-TYPE = TR-TYPE
+                           MOVE ZERO TO WS-TYPE-TOTAL
+                       END-IF
                        PERFORM 200-PROCESS-RTN THRU 200-EXIT
+                       MOVE TR-TYPE TO CUR-TYPE
                END-READ
            END-PERFORM.
            TERMINATE TRAVEL-RPT.
@@ -145,13 +179,11 @@
            EXIT.
            
        200-PROCESS-RTN.
-           IF WS-CURRENT NOT EQUAL TR-C-NUMBER
-               MOVE ZEROS TO WS-CLIENT-TOTAL
-           END-IF
-           ADD TR-COST TO WS-CLIENT-TOTAL.
+           COMPUTE WS-TYPE-TOTAL = WS-TYPE-TOTAL + TR-COST
            PERFORM 300-FORMAT THRU 300-EXIT.
-           MOVE TR-C-NUMBER TO WS-CURRENT.
            GENERATE DETAIL-LINE. 
+           MOVE TR-TYPE TO WS-CURRENT-TYPE.
+           MOVE TR-C-NUMBER TO WS-CURRENT-CUST.
        200-EXIT.
            EXIT.
            
