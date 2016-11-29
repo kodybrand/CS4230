@@ -46,15 +46,22 @@
                      BookUIObj::DisplayErrorMessage(ERROR-MESSAGE)
                   ELSE
                      INVOKE BookUIObj::DisplayBlankLine
+                     
                      INVOKE 
                          BookInvObj::GetDescInfo(BK-DESCRIPTIVE-DATA)
+                         
                      INVOKE 
                          BookUIObj::DisplayDescInfo(BK-DESCRIPTIVE-DATA)
+                         
                      INVOKE 
                          BookInvObj::GetInvInfo(BK-INVENTORY-DATA)
+                         
                      INVOKE 
-                         BookUIObj::DisplayInvInfo(BK-INVENTORY-DATA)   
-                     INVOKE 
+                         BookUIObj::DisplayInvInfo(BK-INVENTORY-DATA) 
+                         
+                     INVOKE self::UpdatePrice
+                     
+                     INVOKE
                          BookUIObj::GetNextItem(END-OF-INQUIRIES-SWITCH)
                      IF NOT END-OF-INQUIRIES
                          INVOKE BookUIObj::DisplayHeading
@@ -63,6 +70,24 @@
                END-IF
            END-PERFORM.
            INVOKE BookFMObj::CloseFile
+       end method.
+       
+       method-id UpdatePrice.
+       local-storage section.
+       01  ACCEPT-PRICE           PIC X.
+       linkage section.
+       
+       procedure division.
+     
+           INVOKE 
+           BookUIObj::UPDPrice(BK-UNIT-PRICE, ACCEPT-PRICE)                      
+          
+           IF ACCEPT-PRICE = "Y" OR "y"
+                       INVOKE 
+                   BookFMObj::UPDPrice(BK-ITEM-NUMBER, BK-UNIT-PRICE)
+                   DISPLAY "UPDATED RECORD!" AT LINE 23 COLUMN 1
+           END-IF.
+           
        end method.
        
        end class.

@@ -153,5 +153,24 @@
               
        end method.
        
+       method-id UPDPrice.
+       local-storage section.
+       01  UNIT-PRICE              PIC ZZZ.ZZ.
+       linkage section.
+       01  LS-NEW-PRICE            PIC 9(3)V99.
+       01  LS-ACCEPT               PIC X.
+       
+       PROCEDURE DIVISION USING LS-NEW-PRICE, LS-ACCEPT.
+           
+           DISPLAY "NEW PRICE : " AT LINE 21 COLUMN 1.
+           ACCEPT LS-NEW-PRICE AT LINE 21 COLUMN 12.
+           DISPLAY "Unit Price:"  LINE 9 COLUMN 1
+           MOVE LS-NEW-PRICE TO UNIT-PRICE
+           DISPLAY UNIT-PRICE    LINE 9 COLUMN 22
+           DISPLAY "OK TO UPDATE?" AT LINE 22 COLUMN 1
+           ACCEPT LS-ACCEPT AT LINE 22 COLUMN 15
+           
+           
+           end method.
        
        end class.

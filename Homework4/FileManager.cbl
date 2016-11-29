@@ -14,7 +14,10 @@
            RECORD CONTAINS 70.
        01  INVMAST-REC.
            05  IM-ITEM-NO              PIC X(5).
-           05  IM-DESCRIPTIVE-DATA     PIC X(50).
+           05  IM-DESCRIPTIVE-DATA.
+               10  BK-ITEM-DESC                    PIC X(40).
+               10  BK-UNIT-COST                    PIC 9(3)V99.
+               10  BK-UNIT-PRICE                   PIC 9(3)V99.
            05  IM-INVENTORY-DATA       PIC X(15).
 
        working-storage section.
@@ -24,7 +27,7 @@
        method-id OpenFile.
        local-storage section.
        procedure division.
-           OPEN INPUT INVMAST-FILE
+           OPEN I-O INVMAST-FILE
        end method.
        
        method-id. CloseFile.
@@ -51,5 +54,20 @@
                  INVOKE LS-BookInvObj::SetBookInfo(INVMAST-REC)
            END-READ
        end method.
+       
+       method-id. UPDPrice.
+       local-storage section.
+       linkage section.
+       01  LS-ITEM-NO                  PIC X(5).
+       01  LS-NEW-PRICE                PIC 9(3)V99.
 
+       procedure division using LS-ITEM-NO LS-NEW-PRICE.
+           MOVE LS-ITEM-NO TO IM-ITEM-NO
+           READ INVMAST-FILE
+           NOT INVALID KEY
+               MOVE LS-NEW-PRICE TO BK-UNIT-PRICE
+               REWRITE INVMAST-REC
+           END-READ.
+           
+       END METHOD.
        end class.
